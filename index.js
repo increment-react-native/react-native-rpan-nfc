@@ -1,6 +1,5 @@
+import RpanScanner from './lib/Scanner';
+import { RpanScannerEvent } from './lib/Event';
 
-import { NativeModules } from 'react-native';
-
-const { RNReactNativeRpanNfc } = NativeModules;
-
-export default RNReactNativeRpanNfc;
+export default RpanScanner;
+export { RpanScannerEvent };
