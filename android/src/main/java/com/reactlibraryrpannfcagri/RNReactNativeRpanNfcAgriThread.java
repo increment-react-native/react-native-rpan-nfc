@@ -115,4 +115,10 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
     public void init(ReactApplicationContext reactContext) {
     }
+
+    public abstract void dispatchEvent(String name, WritableMap data);
+
+    public abstract void dispatchEvent(String name, String data);
+
+    public abstract void dispatchEvent(String name, WritableArray data);
 }

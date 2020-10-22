@@ -4,6 +4,7 @@ package com.reactlibraryrpannfcagri;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -12,6 +13,7 @@ import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule {
 
@@ -21,6 +23,27 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule {
   public RNReactNativeRpanNfcAgriModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
+    this.reactContext.addLifecycleEventListener((LifecycleEventListener) reactContext);
+
+    this.rpanNfcAgriThread = new RNReactNativeRpanNfcAgriThread(this.reactContext) {
+
+      @Override
+      public void dispatchEvent(String name, WritableMap data) {
+        RNReactNativeRpanNfcAgriModule.this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(name, data);
+      }
+
+      @Override
+      public void dispatchEvent(String name, String data) {
+        RNReactNativeRpanNfcAgriModule.this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(name, data);
+      }
+
+      @Override
+      public void dispatchEvent(String name, WritableArray data) {
+        RNReactNativeRpanNfcAgriModule.this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(name, data);
+      }
+    };
+
+    rpanNfcAgriThread.start();
   }
 
   @Override
