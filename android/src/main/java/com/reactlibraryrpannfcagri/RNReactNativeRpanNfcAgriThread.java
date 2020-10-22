@@ -1,14 +1,18 @@
 package com.reactlibraryrpannfcagri;
 
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.rfid.api.ADReaderInterface;
+import com.rfid.api.BluetoothCfg;
 
 import java.io.Reader;
+import java.util.ArrayList;
 
 public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     private ReactApplicationContext context;
@@ -17,6 +21,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     Reader readers = null;
     private  int selectedIndex = 0;
     private ReadableMap config = null;
+    static ADReaderInterface m_reader = new ADReaderInterface();
 
     public RNReactNativeRpanNfcAgriThread(ReactApplicationContext context){
         this.context = context;
@@ -86,8 +91,26 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     }
 
     public WritableArray devices(ReactApplicationContext reactContext) {
-        WritableArray test = null;
-        return test;
+        ArrayList<CharSequence> m_bluetoolNameList = null;
+        WritableArray array = Arguments.createArray();
+        WritableMap event = Arguments.createMap();
+        ArrayList<BluetoothCfg> m_blueList = ADReaderInterface
+                .GetPairBluetooth();
+        if (m_blueList != null)
+        {
+            for (BluetoothCfg bluetoolCfg : m_blueList)
+            {
+                m_bluetoolNameList.add(bluetoolCfg.GetName());
+                WritableMap map = Arguments.createMap();
+                map.putString("model", null);
+                map.putString("serial", null);
+                map.putString("battery", null);
+                map.putString("host", bluetoolCfg.GetName());
+                array.pushMap(map);
+            }
+        }
+
+        return array;
     }
 
     public void init(ReactApplicationContext reactContext) {

@@ -12,15 +12,6 @@ import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.rfid.api.ADReaderInterface;
-import com.rfid.api.BluetoothCfg;
-import com.rfid.api.GFunction;
-import com.rfid.api.ISO14443AInterface;
-import com.rfid.api.ISO14443ATag;
-import com.rfid.api.ISO15693Interface;
-import com.rfid.api.ISO15693Tag;
-import com.rfid.def.ApiErrDefinition;
-import com.rfid.def.RfidDef;
 
 public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule {
 
