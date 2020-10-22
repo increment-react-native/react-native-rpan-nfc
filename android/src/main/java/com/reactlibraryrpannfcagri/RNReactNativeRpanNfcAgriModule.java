@@ -118,6 +118,4 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule {
       this.rpanNfcAgriThread.shutdown();
     }
   }
-
-
 }
