@@ -38,6 +38,5 @@ dependencies {
     implementation fileTree(include: ["*.jar"], dir: 'libs')
     implementation 'com.facebook.react:react-native:+'
     implementation "com.android.support:appcompat-v7:25.0.0"
-    implementation (name: 'anreaderlib', ext: 'jar')
 }
   
