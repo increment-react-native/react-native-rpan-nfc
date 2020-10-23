@@ -15,7 +15,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
-public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule {
+public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule implements LifecycleEventListener{
 
   private final ReactApplicationContext reactContext;
   private RNReactNativeRpanNfcAgriThread rpanNfcAgriThread = null;
@@ -23,7 +23,7 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule {
   public RNReactNativeRpanNfcAgriModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.reactContext = reactContext;
-    this.reactContext.addLifecycleEventListener((LifecycleEventListener) reactContext);
+    this.reactContext.addLifecycleEventListener(this);
 
     this.rpanNfcAgriThread = new RNReactNativeRpanNfcAgriThread(this.reactContext) {
 
