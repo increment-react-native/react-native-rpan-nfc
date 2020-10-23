@@ -51,6 +51,33 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
     return "RNReactNativeRpanNfcAgri";
   }
 
+  @Override
+  public void onHostResume() {
+    if (this.rpanNfcAgriThread != null) {
+      this.rpanNfcAgriThread.onHostResume();
+    }
+  }
+
+  @Override
+  public void onHostPause() {
+    if (this.rpanNfcAgriThread != null) {
+      this.rpanNfcAgriThread.onHostPause();
+    }
+  }
+
+  @Override
+  public void onHostDestroy() {
+    if (this.rpanNfcAgriThread != null) {
+      this.rpanNfcAgriThread.onHostDestroy();
+    }
+  }
+
+  @Override
+  public void onCatalystInstanceDestroy() {
+    if (this.rpanNfcAgriThread != null) {
+      this.rpanNfcAgriThread.onCatalystInstanceDestroy();
+    }
+  }
   @ReactMethod
   public void show(String text) {
     Context context = getReactApplicationContext();
