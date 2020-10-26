@@ -1,6 +1,6 @@
 {
   "name": "react-native-react-native-rpan-nfc-agri",
-  "version": "1.0.2",
+  "version": "1.0.6",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,6 @@
   "author": "",
   "license": "",
   "peerDependencies": {
-    "react-native": "^0.41.2"
+    "react-native": "^0.41.26"
   }
 }
