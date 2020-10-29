@@ -92,9 +92,17 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
   }
 
   @ReactMethod
-  public void power(int value){
+  public void setPower(int value){
     if(this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.power(value);
+      this.rpanNfcAgriThread.setPower(value);
+    }
+  }
+  //Battery Status
+  @ReactMethod
+  public void getPower(Callback callback){
+    if(this.rpanNfcAgriThread != null) {
+      int power = this.rpanNfcAgriThread.getPower(reactContext);
+      callback.invoke(power);
     }
   }
 
@@ -108,18 +116,14 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
   //Battery Status
   @ReactMethod
   public void getBattery(Callback callback){
-    if(this.rpanNfcAgriThread != null) {
-      int battery = this.rpanNfcAgriThread.getBattery();
-      callback.invoke((battery));
-    }
   }
 
   //Connect to selected device
   @ReactMethod
-  public void connect(int index, Callback callback){
+  public void connect(String conStr, Callback callback){
     if(this.rpanNfcAgriThread != null) {
-      WritableMap writableMap = this.rpanNfcAgriThread.connect(index);
-      callback.invoke(writableMap);
+      Boolean result = this.rpanNfcAgriThread.connect(conStr);
+      callback.invoke(result);
     }
   }
 
