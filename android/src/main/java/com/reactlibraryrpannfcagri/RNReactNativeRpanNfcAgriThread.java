@@ -33,9 +33,9 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
     }
 
-    public boolean connect(String conStr){
+    public boolean connect(String deviceName){
 //        RDType=RPAN;CommType=BLUETOOTH;Name=%s
-        this.conStr = conStr;
+        this.conStr = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%", deviceName);
         int iret = m_reader.RDR_Open(conStr);
         if (iret == ApiErrDefinition.NO_ERROR) {
             return true;
