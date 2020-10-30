@@ -4,6 +4,8 @@ buildscript {
         google()
         jcenter()
         flatDir { dirs "libs" }
+        flatDir { dirs "libs/armeabi" }
+        flatDir { dirs "libs/armeabi-v7a" }
     }
 
     dependencies {
@@ -26,20 +28,27 @@ android {
     lintOptions {
         abortOnError false
     }
+    
+    splits{
+        ndk {
+            abiFilters "armeabi-v7a", "x86", "armeabi"
+        }
+    }
 }
 
 repositories {
     jcenter()
     google()
     flatDir { dirs "libs" }
+    flatDir { dirs "libs/armeabi" }
+    flatDir { dirs "libs/armeabi-v7a" }
 }
 
 dependencies {
-    implementation fileTree(include: ["*.jar"], dir: 'libs')
+    implementation fileTree(include: ["*.jar"], dir: ['libs', 'libs/armeabi', 'libs/armeabi-v7a'])
     implementation 'com.facebook.react:react-native:+'
     implementation "com.android.support:appcompat-v7:25.0.0"
     implementation (name: 'anreaderlib', ext: 'jar')
-    implementation (name: 'anreaderlib', ext: 'jar')
-    implementation (name: 'anreaderlib', ext: 'jar')
+    implementation (name: 'd2xx', ext: 'jar')
 }
   
