@@ -30,8 +30,8 @@ android {
     }
     
     splits{
-        ndk {
-            abiFilters "armeabi-v7a", "x86", "armeabi"
+        abi {
+            include "armeabi-v7a", "x86", "armeabi"
         }
     }
 }
