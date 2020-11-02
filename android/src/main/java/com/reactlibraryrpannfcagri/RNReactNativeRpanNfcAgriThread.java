@@ -35,7 +35,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
     public boolean connect(String deviceName){
 //        RDType=RPAN;CommType=BLUETOOTH;Name=%s
-        this.conStr = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%", deviceName);
+        this.conStr = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%s;", deviceName);
         int iret = m_reader.RDR_Open(conStr);
         if (iret == ApiErrDefinition.NO_ERROR) {
             return true;
@@ -102,6 +102,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
             return -1;
         }
         return mPower.byteValue() - 1;
+//        return nret;
     }
 
     public void setPower(int value) {
@@ -119,7 +120,6 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
         {
             for (BluetoothCfg bluetoolCfg : m_blueList)
             {
-                m_bluetoolNameList.add(bluetoolCfg.GetName());
                 WritableMap map = Arguments.createMap();
                 map.putString("model", null);
                 map.putString("serial", null);
