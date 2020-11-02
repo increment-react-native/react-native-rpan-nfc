@@ -102,7 +102,7 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
   public void getPower(Callback callback){
     if(this.rpanNfcAgriThread != null) {
       int power = this.rpanNfcAgriThread.getPower(reactContext);
-      callback.invoke(power);
+      callback.invoke((power + 1) * 0.25);
     }
   }
 
