@@ -1,9 +1,11 @@
 package com.reactlibraryrpannfcagri;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -49,15 +51,17 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
     }
 
-    private Handler mHandler = new MyHandler(this);
+    private Handler mHandler = new MyHandler(this, context);
 
     private static class MyHandler extends Handler
     {
         private final WeakReference<RNReactNativeRpanNfcAgriThread> mActivity;
+        private final Context context;
 
-        public MyHandler(RNReactNativeRpanNfcAgriThread activity)
+        public MyHandler(RNReactNativeRpanNfcAgriThread activity, Context context)
         {
             mActivity = new WeakReference<RNReactNativeRpanNfcAgriThread>(activity);
+            this.context = context;
         }
 
         @Override
@@ -80,6 +84,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                     Vector<String> dataList = (Vector<String>) msg.obj;
                     for (String str : dataList)
                     {
+                        Toast.makeText(context, str , Toast.LENGTH_LONG).show();
 //                        b_find = false;
 //                        for (int i = 0; i < pt.scanfReportList.size(); i++)
 //                        {

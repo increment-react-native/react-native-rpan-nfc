@@ -92,6 +92,13 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
   }
 
   @ReactMethod
+  public void start(){
+    if(this.rpanNfcAgriThread != null){
+      this.rpanNfcAgriThread.start();
+    }
+  }
+
+  @ReactMethod
   public void setPower(int value){
     if(this.rpanNfcAgriThread != null) {
       this.rpanNfcAgriThread.setPower(value);
