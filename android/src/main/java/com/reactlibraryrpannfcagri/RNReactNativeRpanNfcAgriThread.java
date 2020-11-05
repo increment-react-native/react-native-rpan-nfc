@@ -84,7 +84,8 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                     Vector<String> dataList = (Vector<String>) msg.obj;
                     for (String str : dataList)
                     {
-                        Toast.makeText(context, str , Toast.LENGTH_LONG).show();
+                        Log.d("READ TAGS", str);
+//                        Toast.makeText(context, str , Toast.LENGTH_LONG).show();
 //                        b_find = false;
 //                        for (int i = 0; i < pt.scanfReportList.size(); i++)
 //                        {
