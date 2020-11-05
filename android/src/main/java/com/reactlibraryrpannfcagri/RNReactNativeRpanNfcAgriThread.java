@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Vector;
 
-public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
+public abstract class RNReactNativeRpanNfcAgriThread{
     private ReactApplicationContext context;
     WritableMap dataMap = null;
     Boolean reading = false;
@@ -47,9 +47,6 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
         this.context = context;
     }
 
-    public void run(){
-
-    }
 
     private Handler mHandler = new MyHandler(this, context);
 
@@ -239,8 +236,8 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
     public void  start(){
         if(!this.reading){
-            getScanRecord = new Thread(new GetScanRecordThrd());
-            getScanRecord.start();
+            this.getScanRecord = new Thread(new GetScanRecordThrd());
+            this.getScanRecord.start();
         }
     }
 
