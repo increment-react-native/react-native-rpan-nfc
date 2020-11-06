@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Vector;
 
-public abstract class RNReactNativeRpanNfcAgriThread{
+public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     private ReactApplicationContext context;
     WritableMap dataMap = null;
     Boolean reading = false;
@@ -45,6 +45,11 @@ public abstract class RNReactNativeRpanNfcAgriThread{
 
     public RNReactNativeRpanNfcAgriThread(ReactApplicationContext context){
         this.context = context;
+    }
+
+    @Override
+    public void run() {
+        
     }
 
     public boolean connect(String deviceName){
