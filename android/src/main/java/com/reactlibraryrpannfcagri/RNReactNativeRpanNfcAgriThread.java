@@ -49,7 +49,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
     @Override
     public void run() {
-        
+
     }
 
     public boolean connect(String deviceName){
