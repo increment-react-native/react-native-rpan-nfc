@@ -113,7 +113,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     public void read(ReadableMap config) {
     }
 
-    public void  start(){
+    public void  startScanning(){
         int nret = 0;
         bGetScanRecordFlg = true;
         byte gFlg = 0x00;// ���βɼ����ݻ�����һ�βɼ�����ʧ��ʱ����־λΪ0x00

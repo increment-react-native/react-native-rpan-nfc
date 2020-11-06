@@ -92,9 +92,9 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
   }
 
   @ReactMethod
-  public void start(){
+  public void startScanning(){
     if(this.rpanNfcAgriThread != null){
-      this.rpanNfcAgriThread.start();
+      this.rpanNfcAgriThread.startScanning();
     }
   }
 
