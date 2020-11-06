@@ -47,132 +47,6 @@ public abstract class RNReactNativeRpanNfcAgriThread{
         this.context = context;
     }
 
-
-    private Handler mHandler = new MyHandler(this, context);
-
-    private static class MyHandler extends Handler
-    {
-        private final WeakReference<RNReactNativeRpanNfcAgriThread> mActivity;
-        private final Context context;
-
-        public MyHandler(RNReactNativeRpanNfcAgriThread activity, Context context)
-        {
-            mActivity = new WeakReference<RNReactNativeRpanNfcAgriThread>(activity);
-            this.context = context;
-        }
-
-        @Override
-        public void handleMessage(Message msg)
-        {
-            RNReactNativeRpanNfcAgriThread pt = mActivity.get();
-            if (pt == null)
-            {
-                return;
-            }
-            boolean b_find = false;
-            switch (msg.what)
-            {
-                case INVENTORY_MSG:
-                    break;
-                case INVENTORY_FAIL_MSG:
-                    break;
-                case GETSCANRECORD:// ɨ�赽��¼
-                    @SuppressWarnings("unchecked")
-                    Vector<String> dataList = (Vector<String>) msg.obj;
-                    for (String str : dataList)
-                    {
-                        Log.d("READ TAGS", str);
-//                        Toast.makeText(context, str , Toast.LENGTH_LONG).show();
-//                        b_find = false;
-//                        for (int i = 0; i < pt.scanfReportList.size(); i++)
-//                        {
-//                            ScanReport mReport = pt.scanfReportList.get(i);
-//                            if (str.equals(mReport.getDataStr()))
-//                            {
-//                                mReport.setFindCnt(mReport.getFindCnt() + 1);
-//                                b_find = true;
-//                            }
-//                        }
-//                        if (!b_find)
-//                        {
-//                            pt.scanfReportList.add(new ScanReport(str));
-//                        }
-//                        call output here
-                    }
-//                    pt.tv_scanRecordInfo.setText(pt
-//                            .getString(R.string.tx_info_scanfCnt)
-//                            + pt.scanfReportList.size());
-//                    pt.scanfAdapter.notifyDataSetChanged();
-                    break;
-                case THREAD_END:// �߳̽���
-                    pt.FinishInventory();
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    private void FinishInventory()
-    {
-        bGetScanRecordFlg = false;
-    }
-
-    private class GetScanRecordThrd implements Runnable
-    {
-        public void run()
-        {
-            int nret = 0;
-            bGetScanRecordFlg = true;
-            byte gFlg = 0x00;// ���βɼ����ݻ�����һ�βɼ�����ʧ��ʱ����־λΪ0x00
-            Object dnhReport = null;
-            while (bGetScanRecordFlg)
-            {
-                if (mHandler.hasMessages(GETSCANRECORD))
-                {
-                    continue;
-                }
-                nret = m_reader.RDR_BuffMode_FetchRecords(gFlg);
-                if (nret != ApiErrDefinition.NO_ERROR)
-                {
-                    gFlg = 0x00;
-                    continue;
-                }
-                gFlg = 0x01;
-                dnhReport = m_reader
-                        .RDR_GetTagDataReport(RfidDef.RFID_SEEK_FIRST);
-                Vector<String> dataList = new Vector<String>();
-                while (dnhReport != null)
-                {
-                    String strData = "";
-                    byte[] byData = new byte[32];
-                    int[] len = new int[1];
-                    len[0] = byData.length;
-                    if (ADReaderInterface.RDR_ParseTagDataReportRaw(dnhReport, byData,
-                            len) == 0)
-                    {
-                        if (len[0] > 0)
-                        {
-                            strData = GFunction.encodeHexStr(byData,len[0]);
-                            dataList.add(strData);
-                        }
-                    }
-                    dnhReport = m_reader
-                            .RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
-                }
-                if (!dataList.isEmpty())
-                {
-                    Message msg = mHandler.obtainMessage();
-                    msg.what = GETSCANRECORD;
-                    msg.obj = dataList;
-                    mHandler.sendMessage(msg);
-                }
-            }
-            bGetScanRecordFlg = false;
-            mHandler.sendEmptyMessage(THREAD_END);// ����
-        }
-    };
-
     public boolean connect(String deviceName){
 //        RDType=RPAN;CommType=BLUETOOTH;Name=%s
         this.conStr = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%s;", deviceName);
@@ -235,10 +109,45 @@ public abstract class RNReactNativeRpanNfcAgriThread{
     }
 
     public void  start(){
-        if(!this.reading){
-            this.getScanRecord = new Thread(new GetScanRecordThrd());
-            this.getScanRecord.start();
+        int nret = 0;
+        bGetScanRecordFlg = true;
+        byte gFlg = 0x00;// ���βɼ����ݻ�����һ�βɼ�����ʧ��ʱ����־λΪ0x00
+        Object dnhReport = null;
+        while (bGetScanRecordFlg)
+        {
+            nret = m_reader.RDR_BuffMode_FetchRecords(gFlg);
+            if (nret != ApiErrDefinition.NO_ERROR)
+            {
+                gFlg = 0x00;
+                continue;
+            }
+            gFlg = 0x01;
+            dnhReport = m_reader
+                    .RDR_GetTagDataReport(RfidDef.RFID_SEEK_FIRST);
+            Vector<String> dataList = new Vector<String>();
+            while (dnhReport != null)
+            {
+                String strData = "";
+                byte[] byData = new byte[32];
+                int[] len = new int[1];
+                len[0] = byData.length;
+                if (ADReaderInterface.RDR_ParseTagDataReportRaw(dnhReport, byData,
+                        len) == 0)
+                {
+                    if (len[0] > 0)
+                    {
+                        strData = GFunction.encodeHexStr(byData,len[0]);
+                        dataList.add(strData);
+                    }
+                }
+                dnhReport = m_reader
+                        .RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
+            }
+            if (!dataList.isEmpty())
+            {
+            }
         }
+        bGetScanRecordFlg = false;
     }
 
     public int getPower(ReactApplicationContext reactContext) {
