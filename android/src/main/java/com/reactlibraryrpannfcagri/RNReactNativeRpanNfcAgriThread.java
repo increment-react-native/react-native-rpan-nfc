@@ -113,9 +113,10 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     public void read(ReadableMap config) {
     }
 
-    public void  startScanning(){
+    public String  startScanning(){
         int nret = 0;
         bGetScanRecordFlg = true;
+        String strData = "";
         byte gFlg = 0x00;// ���βɼ����ݻ�����һ�βɼ�����ʧ��ʱ����־λΪ0x00
         Object dnhReport = null;
         while (bGetScanRecordFlg)
@@ -132,7 +133,6 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
             Vector<String> dataList = new Vector<String>();
             while (dnhReport != null)
             {
-                String strData = "";
                 byte[] byData = new byte[32];
                 int[] len = new int[1];
                 len[0] = byData.length;
@@ -141,18 +141,15 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                 {
                     if (len[0] > 0)
                     {
-                        strData = GFunction.encodeHexStr(byData,len[0]);
-                        dataList.add(strData);
+                        return GFunction.encodeHexStr(byData,len[0]);
                     }
                 }
                 dnhReport = m_reader
                         .RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
             }
-            if (!dataList.isEmpty())
-            {
-            }
         }
         bGetScanRecordFlg = false;
+        return strData;
     }
 
     public int getPower(ReactApplicationContext reactContext) {
