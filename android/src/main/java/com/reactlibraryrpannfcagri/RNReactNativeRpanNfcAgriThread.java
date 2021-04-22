@@ -45,6 +45,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
     public RNReactNativeRpanNfcAgriThread(ReactApplicationContext context){
         this.context = context;
+        this.m_reader = new ADReaderInterface();
     }
 
     @Override
@@ -52,14 +53,19 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
     }
 
-    public boolean connect(String deviceName){
+    public Boolean connect(String deviceName){
 //        RDType=RPAN;CommType=BLUETOOTH;Name=%s
-        this.conStr = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%s;", deviceName);
-        int iret = m_reader.RDR_Open(conStr);
-        if (iret == ApiErrDefinition.NO_ERROR) {
-            return true;
-        } else {
-            return false;
+        if(m_reader != null){
+            String device = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%s;", deviceName);
+            this.conStr = device;
+            int iret = m_reader.RDR_Open("RDType=RPAN;CommType=BLUETOOTH;Name=R-PAN.32FBA7;");
+            if (iret == ApiErrDefinition.NO_ERROR) {
+                return true;
+            } else {
+                return false;
+            }
+        }else{
+            return  false;
         }
     }
 

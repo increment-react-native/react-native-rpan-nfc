@@ -129,9 +129,12 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
   //Connect to selected device
   @ReactMethod
   public void connect(String deviceName, Callback callback){
+//      callback.invoke(deviceName);
     if(this.rpanNfcAgriThread != null) {
       Boolean result = this.rpanNfcAgriThread.connect(deviceName);
       callback.invoke(result);
+    }else{
+      callback.invoke("Invalid connection");
     }
   }
 
