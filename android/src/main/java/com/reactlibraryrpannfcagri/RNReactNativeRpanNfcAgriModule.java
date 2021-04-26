@@ -14,11 +14,14 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.rfid.api.ADReaderInterface;
+import com.rfid.def.ApiErrDefinition;
 
 public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule implements LifecycleEventListener{
 
   private final ReactApplicationContext reactContext;
   private RNReactNativeRpanNfcAgriThread rpanNfcAgriThread = null;
+  static ADReaderInterface m_reader = new ADReaderInterface();
 
   public RNReactNativeRpanNfcAgriModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -130,11 +133,18 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
   @ReactMethod
   public void connect(String deviceName, Callback callback){
 //      callback.invoke(deviceName);
-    if(this.rpanNfcAgriThread != null) {
-      Boolean result = this.rpanNfcAgriThread.connect(deviceName);
-      callback.invoke(result);
-    }else{
-      callback.invoke("Invalid connection");
+//    if(this.rpanNfcAgriThread != null) {
+//      String result = this.rpanNfcAgriThread.connect(deviceName);
+//      callback.invoke(result);
+//    }else{
+//      callback.invoke("Invalid connection");
+//    }
+    String device = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%s", deviceName);
+    int iret = m_reader.RDR_Open(device);
+    if (iret == ApiErrDefinition.NO_ERROR) {
+      callback.invoke(device + " successfully connected");
+    } else {
+      callback.invoke(device + "error");
     }
   }
 
