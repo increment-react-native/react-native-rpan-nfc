@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Vector;
 
-public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
+public class CustomThread{
     private ReactApplicationContext context;
     WritableMap dataMap = null;
     Boolean reading = false;
@@ -35,6 +35,16 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     private  int selectedIndex = 0;
     private ReadableMap config = null;
     static ADReaderInterface m_reader = new ADReaderInterface();
+    static int INVENTORY_REQUEST_CODE = 1;// requestCode
+    private boolean bOnlyReadNew = false;
+    private boolean bMathAFI = false;
+    private byte mAFIVal = 0x00;
+    private boolean bBuzzer = true;
+    private boolean bUseISO15693 = false;
+    private boolean bUseISO14443A = false;
+    private long mAntCfg = 0x000000;
+    private boolean bRealShowTag = false;
+
     private String conStr = null;
     private Thread getScanRecord = null;
     private Boolean bGetScanRecordFlg = false;
@@ -43,28 +53,24 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     private static final int INVENTORY_FAIL_MSG = 4;
     private static final int THREAD_END = 3;
 
-    public RNReactNativeRpanNfcAgriThread(ReactApplicationContext context){
-        this.context = context;
+    public CustomThread(ReactApplicationContext reactContext) {
+        context = reactContext;
     }
 
-    @Override
-    public void run() {
-
-    }
-
-    public Boolean connect(String deviceName){
+    public String connect(String deviceName){
         String device = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%s", deviceName);
-        int iret = m_reader.RDR_Open(device);
+        this.conStr = device;
+        int iret =  m_reader.RDR_Open(device);
         if (iret == ApiErrDefinition.NO_ERROR) {
             Toast.makeText(context,
                     device + " successfully connected",
                     Toast.LENGTH_SHORT).show();
-            return true;
+            return "connected";
         } else {
             Toast.makeText(context,
                     device + " error",
                     Toast.LENGTH_SHORT).show();
-            return false;
+            return "error";
         }
     }
 
@@ -192,13 +198,4 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
         return array;
     }
-
-    public void init(ReactApplicationContext reactContext) {
-    }
-
-    public abstract void dispatchEvent(String name, WritableMap data);
-
-    public abstract void dispatchEvent(String name, String data);
-
-    public abstract void dispatchEvent(String name, WritableArray data);
 }
