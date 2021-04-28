@@ -90,15 +90,26 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
 
   @ReactMethod
   public void init() {
-    if (this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.init(reactContext);
+    if (rpanNfcAgriThread != null) {
+      rpanNfcAgriThread.init(reactContext);
+    }
+  }
+
+  //Connect to selected device
+  @ReactMethod
+  public void connect(String deviceName, Callback callback){
+    if(rpanNfcAgriThread != null) {
+      Boolean result = rpanNfcAgriThread.connect(deviceName);
+      callback.invoke(result);
+    }else{
+      callback.invoke(false);
     }
   }
 
   @ReactMethod
   public void startScanning(Callback callback){
-    if(this.rpanNfcAgriThread != null){
-      String code = this.rpanNfcAgriThread.startScanning();
+    if(rpanNfcAgriThread != null){
+      String code = rpanNfcAgriThread.startScanning(reactContext);
       callback.invoke(code);
     }
   }
@@ -130,24 +141,7 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
   public void getBattery(Callback callback){
   }
 
-  //Connect to selected device
-  @ReactMethod
-  public void connect(String deviceName, Callback callback){
-//      callback.invoke(deviceName);
-    if(cThread != null) {
-      String result = cThread.connect(deviceName);
-      callback.invoke(result);
-    }else{
-      callback.invoke("Invalid connection");
-    }
-//    String device = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%s", deviceName);
-//    int iret = cThread.RDR_Open(device);
-//    if (iret == ApiErrDefinition.NO_ERROR) {
-//      callback.invoke(device + " successfully connected");
-//    } else {
-//      callback.invoke(device + "error");
-//    }
-  }
+
 
   //Devices list
   @ReactMethod

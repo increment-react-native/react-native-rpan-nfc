@@ -58,17 +58,15 @@ public class CustomThread{
     }
 
     public String connect(String deviceName){
-        String device = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%s", deviceName);
-        this.conStr = device;
-        int iret =  m_reader.RDR_Open(device);
+        int iret =  m_reader.RDR_Open("RDType=RPAN;CommType=BLUETOOTH;Name=" + deviceName);
         if (iret == ApiErrDefinition.NO_ERROR) {
             Toast.makeText(context,
-                    device + " successfully connected",
+                    " successfully connected",
                     Toast.LENGTH_SHORT).show();
             return "connected";
         } else {
             Toast.makeText(context,
-                    device + " error",
+                    " error",
                     Toast.LENGTH_SHORT).show();
             return "error";
         }

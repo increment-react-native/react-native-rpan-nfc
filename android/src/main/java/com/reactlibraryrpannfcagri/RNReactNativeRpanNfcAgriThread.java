@@ -53,16 +53,15 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     }
 
     public Boolean connect(String deviceName){
-        String device = String.format("RDType=RPAN;CommType=BLUETOOTH;Name=%s", deviceName);
-        int iret = m_reader.RDR_Open(device);
+        int iret = m_reader.RDR_Open("RDType=RPAN;CommType=BLUETOOTH;Name=" + deviceName);
         if (iret == ApiErrDefinition.NO_ERROR) {
             Toast.makeText(context,
-                    device + " successfully connected",
+                    deviceName + ": successfully connected",
                     Toast.LENGTH_SHORT).show();
             return true;
         } else {
             Toast.makeText(context,
-                    device + " error",
+                    deviceName + ": error",
                     Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -118,39 +117,57 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     public void read(ReadableMap config) {
     }
 
-    public String  startScanning(){
+    public String startScanning(ReactApplicationContext context){
         int nret = 0;
         bGetScanRecordFlg = true;
         String strData = "";
         byte gFlg = 0x00;// ���βɼ����ݻ�����һ�βɼ�����ʧ��ʱ����־λΪ0x00
         Object dnhReport = null;
+        byte useAnt[] = null;
+        Object hInvenParamSpecList = null;
         while (bGetScanRecordFlg)
         {
-            nret = m_reader.RDR_BuffMode_FetchRecords(gFlg);
-            if (nret != ApiErrDefinition.NO_ERROR)
+            int iret = m_reader.RDR_TagInventory(RfidDef.AI_TYPE_NEW, useAnt, 0,
+                    hInvenParamSpecList);
+            if (iret == ApiErrDefinition.NO_ERROR
+                    || iret == -ApiErrDefinition.ERR_STOPTRRIGOCUR)
             {
-                gFlg = 0x00;
-                continue;
-            }
-            gFlg = 0x01;
-            dnhReport = m_reader
-                    .RDR_GetTagDataReport(RfidDef.RFID_SEEK_FIRST);
-            Vector<String> dataList = new Vector<String>();
-            while (dnhReport != null)
-            {
-                byte[] byData = new byte[32];
-                int[] len = new int[1];
-                len[0] = byData.length;
-                if (ADReaderInterface.RDR_ParseTagDataReportRaw(dnhReport, byData,
-                        len) == 0)
+                Object tagReport = m_reader
+                        .RDR_GetTagDataReport(RfidDef.RFID_SEEK_FIRST);
+                while (tagReport != null)
                 {
-                    if (len[0] > 0)
+                    ISO15693Tag ISO15693TagData = new ISO15693Tag();
+                    iret = ISO15693Interface.ISO15693_ParseTagDataReport(
+                            tagReport, ISO15693TagData);
+                    if (iret == ApiErrDefinition.NO_ERROR)
                     {
-                        return GFunction.encodeHexStr(byData,len[0]);
+                        // ISO15693 TAG
+//                        tagList.add(ISO15693TagData);
+                        Toast.makeText(context, "Tags: " + ISO15693TagData, Toast.LENGTH_SHORT).show();
+                        strData = String.valueOf(ISO15693TagData.uid);
+                        tagReport = m_reader
+                                .RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
+                        return  strData;
+                    }
+
+                    ISO14443ATag ISO14444ATagData = new ISO14443ATag();
+                    iret = ISO14443AInterface.ISO14443A_ParseTagDataReport(
+                            tagReport, ISO14444ATagData);
+                    if (iret == ApiErrDefinition.NO_ERROR)
+                    {
+                        // ISO14443A TAG
+//                        tagList.add(ISO14444ATagData);
+                        Toast.makeText(context, "Tags: " + ISO14444ATagData, Toast.LENGTH_SHORT).show();
+                        strData = String.valueOf(ISO14444ATagData.uid);
+
+                        tagReport = m_reader
+                                .RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
+                        return  strData;
+//                        return ISO14444ATagDat;
                     }
                 }
-                dnhReport = m_reader
-                        .RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
+            }else{
+
             }
         }
         bGetScanRecordFlg = false;
