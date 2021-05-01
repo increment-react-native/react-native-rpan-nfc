@@ -17,6 +17,8 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.rfid.api.ADReaderInterface;
 import com.rfid.def.ApiErrDefinition;
 
+import java.util.Vector;
+
 public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule implements LifecycleEventListener{
 
   private final ReactApplicationContext reactContext;
@@ -57,29 +59,29 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
 
   @Override
   public void onHostResume() {
-    if (this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.onHostResume();
+    if (rpanNfcAgriThread != null) {
+      rpanNfcAgriThread.onHostResume();
     }
   }
 
   @Override
   public void onHostPause() {
-    if (this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.onHostPause();
+    if (rpanNfcAgriThread != null) {
+      rpanNfcAgriThread.onHostPause();
     }
   }
 
   @Override
   public void onHostDestroy() {
-    if (this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.onHostDestroy();
+    if (rpanNfcAgriThread != null) {
+      rpanNfcAgriThread.onHostDestroy();
     }
   }
 
   @Override
   public void onCatalystInstanceDestroy() {
-    if (this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.onCatalystInstanceDestroy();
+    if (rpanNfcAgriThread != null) {
+      rpanNfcAgriThread.onCatalystInstanceDestroy();
     }
   }
   @ReactMethod
@@ -109,30 +111,30 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
   @ReactMethod
   public void startScanning(Callback callback){
     if(rpanNfcAgriThread != null){
-      String code = rpanNfcAgriThread.startScanning(reactContext);
-      callback.invoke(code);
+      WritableArray array = rpanNfcAgriThread.startScanning(reactContext);
+      callback.invoke(array);
     }
   }
 
   @ReactMethod
   public void setPower(int value){
-    if(this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.setPower(value);
+    if(rpanNfcAgriThread != null) {
+      rpanNfcAgriThread.setPower(value);
     }
   }
   //Battery Status
   @ReactMethod
   public void getPower(Callback callback){
-    if(this.rpanNfcAgriThread != null) {
-      int power = this.rpanNfcAgriThread.getPower(reactContext);
+    if(rpanNfcAgriThread != null) {
+      int power = rpanNfcAgriThread.getPower(reactContext);
       callback.invoke((power + 1) * 0.25);
     }
   }
 
   @ReactMethod
   public void disconnect(){
-    if(this.rpanNfcAgriThread != null){
-      this.rpanNfcAgriThread.disconnect();
+    if(rpanNfcAgriThread != null){
+      rpanNfcAgriThread.disconnect();
     }
   }
 
@@ -146,37 +148,37 @@ public class RNReactNativeRpanNfcAgriModule extends ReactContextBaseJavaModule i
   //Devices list
   @ReactMethod
   public void devices(Callback callback){
-    if (this.rpanNfcAgriThread != null) {
-      WritableArray array = this.rpanNfcAgriThread.devices(reactContext);
+    if (rpanNfcAgriThread != null) {
+      WritableArray array = rpanNfcAgriThread.devices(reactContext);
       callback.invoke(array);
     }
   }
 
   @ReactMethod
   public void reconnect() {
-    if (this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.reconnect();
+    if (rpanNfcAgriThread != null) {
+      rpanNfcAgriThread.reconnect();
     }
   }
 
   @ReactMethod
   public void read(ReadableMap config) {
-    if (this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.read(config);
+    if (rpanNfcAgriThread != null) {
+      rpanNfcAgriThread.read(config);
     }
   }
 
   @ReactMethod
   public void cancel() {
-    if (this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.cancel();
+    if (rpanNfcAgriThread != null) {
+      rpanNfcAgriThread.cancel();
     }
   }
 
   @ReactMethod
   public void shutdown() {
-    if (this.rpanNfcAgriThread != null) {
-      this.rpanNfcAgriThread.shutdown();
+    if (rpanNfcAgriThread != null) {
+      rpanNfcAgriThread.shutdown();
     }
   }
 }
