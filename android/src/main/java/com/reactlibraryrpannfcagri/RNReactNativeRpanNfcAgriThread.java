@@ -21,6 +21,7 @@ import com.rfid.api.ISO15693Interface;
 import com.rfid.api.ISO15693Tag;
 import com.rfid.def.ApiErrDefinition;
 import com.rfid.def.RfidDef;
+import com.rfid.transport.BufferPack;
 
 import java.io.Reader;
 import java.lang.ref.WeakReference;
@@ -42,6 +43,12 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     private static final int GETSCANRECORD = 2;
     private static final int INVENTORY_FAIL_MSG = 4;
     private static final int THREAD_END = 3;
+    private boolean bOnlyReadNew = false;
+    private boolean bUseISO15693 = false;
+    private boolean bUseISO14443A = false;
+    private long mAntCfg = 0x000000;
+    private boolean bMathAFI = false;
+    private byte mAFIVal = 0x00;
 
     public RNReactNativeRpanNfcAgriThread(ReactApplicationContext context){
         this.context = context;
@@ -117,72 +124,120 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     public void read(ReadableMap config) {
     }
 
-    public String startScanning(ReactApplicationContext context){
-        int nret = 0;
+    public WritableArray startScanning(ReactApplicationContext context){
         bGetScanRecordFlg = true;
-        String strData = "";
-        byte gFlg = 0x00;// ���βɼ����ݻ�����һ�βɼ�����ʧ��ʱ����־λΪ0x00
-        Object dnhReport = null;
         byte useAnt[] = null;
         Object hInvenParamSpecList = null;
-        while (bGetScanRecordFlg)
+        WritableArray tagList = Arguments.createArray();
+        byte newAI = RfidDef.AI_TYPE_NEW;
+        int failedCnt = 0;// ����ʧ�ܴ���
+
+        if (bOnlyReadNew)
         {
-            int iret = m_reader.RDR_TagInventory(RfidDef.AI_TYPE_NEW, useAnt, 0,
-                    hInvenParamSpecList);
-            if (iret == ApiErrDefinition.NO_ERROR
-                    || iret == -ApiErrDefinition.ERR_STOPTRRIGOCUR)
+            newAI = RfidDef.AI_TYPE_CONTINUE;
+        }
+
+        if (mAntCfg != 0)
+        {
+            Vector<Byte> vAntList = new Vector<Byte>();
+            for (int i = 0; i < 32; i++)
             {
-                Object tagReport = m_reader
-                        .RDR_GetTagDataReport(RfidDef.RFID_SEEK_FIRST);
-                while (tagReport != null)
+                if ((mAntCfg & (1 << i)) != 0)
                 {
-                    ISO15693Tag ISO15693TagData = new ISO15693Tag();
-                    iret = ISO15693Interface.ISO15693_ParseTagDataReport(
-                            tagReport, ISO15693TagData);
-                    if (iret == ApiErrDefinition.NO_ERROR)
-                    {
-                        // ISO15693 TAG
-//                        tagList.add(ISO15693TagData);
-                        Toast.makeText(context, "Tags: " + ISO15693TagData, Toast.LENGTH_SHORT).show();
-                        strData = String.valueOf(ISO15693TagData.uid);
-                        tagReport = m_reader
-                                .RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
-                        return  strData;
-                    }
-
-                    ISO14443ATag ISO14444ATagData = new ISO14443ATag();
-                    iret = ISO14443AInterface.ISO14443A_ParseTagDataReport(
-                            tagReport, ISO14444ATagData);
-                    if (iret == ApiErrDefinition.NO_ERROR)
-                    {
-                        // ISO14443A TAG
-//                        tagList.add(ISO14444ATagData);
-                        Toast.makeText(context, "Tags: " + ISO14444ATagData, Toast.LENGTH_SHORT).show();
-                        strData = String.valueOf(ISO14444ATagData.);
-
-                        tagReport = m_reader
-                                .RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
-                        return  strData;
-//                        return ISO14444ATagDat;
-                    }
+                    vAntList.add((byte) (i + 1));
                 }
-            }else{
+            }
 
+            useAnt = new byte[vAntList.size()];
+            for (int i = 0; i < useAnt.length; i++)
+            {
+                useAnt[i] = vAntList.get(i);
             }
         }
-        bGetScanRecordFlg = false;
-        return strData;
+
+        if (bUseISO14443A || bUseISO15693)
+        {
+            hInvenParamSpecList = ADReaderInterface
+                    .RDR_CreateInvenParamSpecList();
+            if (bUseISO15693)
+            {
+                ISO15693Interface.ISO15693_CreateInvenParam(
+                        hInvenParamSpecList, (byte) 0, bMathAFI, mAFIVal,
+                        (byte) 0);
+            }
+            if (bUseISO14443A)
+            {
+                ISO14443AInterface.ISO14443A_CreateInvenParam(
+                        hInvenParamSpecList, (byte) 0);
+            }
+        }
+
+        int iret = m_reader.RDR_TagInventory(RfidDef.AI_TYPE_NEW, useAnt, 0,
+                hInvenParamSpecList);
+        if (iret == ApiErrDefinition.NO_ERROR
+                || iret == -ApiErrDefinition.ERR_STOPTRRIGOCUR)
+        {
+            Object tagReport = m_reader
+                    .RDR_GetTagDataReport(RfidDef.RFID_SEEK_FIRST);
+
+            while (tagReport != null)
+            {
+                ISO15693Tag ISO15693TagData = new ISO15693Tag();
+                iret = ISO15693Interface.ISO15693_ParseTagDataReport(
+                        tagReport, ISO15693TagData);
+                if (iret == ApiErrDefinition.NO_ERROR)
+                {
+                    // ISO15693 TAG
+                    BufferPack bufferPack = ISO15693TagData.m_rawData;
+                    String data = GFunction.encodeHexStr(bufferPack.GetBuffer());
+                    WritableMap map = Arguments.createMap();
+                    map.putString("data", data);
+                    map.putString("ant_id", String.valueOf(ISO15693TagData.ant_id));
+                    map.putString("tag_id", ISO15693Interface.GetTagNameById(ISO15693TagData.tag_id));
+                    map.putString("uid", GFunction.encodeHexStr(ISO15693TagData.uid));
+                    map.putString("aip_id", String.valueOf(ISO15693TagData.aip_id));
+                    map.putString("length", String.valueOf(bufferPack.readable_length()));
+                    map.putString("buffer length", String.valueOf(bufferPack.getBufferLen()));
+                    tagList.pushMap((WritableMap) map);
+                    Toast.makeText(context, "Tags: " + ISO15693TagData, Toast.LENGTH_SHORT).show();
+                    tagReport = m_reader.RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
+                }
+
+                ISO14443ATag ISO14444ATagData = new ISO14443ATag();
+                iret = ISO14443AInterface.ISO14443A_ParseTagDataReport(
+                        tagReport, ISO14444ATagData);
+                if (iret == ApiErrDefinition.NO_ERROR)
+                {
+                    // ISO14443A TAG
+
+                    WritableMap map = Arguments.createMap();
+                    map.putString("data", tagReport.toString());
+                    map.putString("ant_id", String.valueOf(ISO14444ATagData.ant_id));
+                    map.putString("tag_id", ISO14443AInterface.GetTagNameById(ISO14444ATagData.tag_id));
+                    map.putString("uid", GFunction.encodeHexStr(ISO14444ATagData.uid));
+                    map.putString("aip_id", String.valueOf(ISO14444ATagData.aip_id));
+                    tagList.pushMap((WritableMap) map);
+                    Toast.makeText(context, "Tags: " + ISO14444ATagData, Toast.LENGTH_SHORT).show();
+
+                    tagReport = m_reader.RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
+                }
+            }
+        }
+
+        return tagList;
     }
 
     public int getPower(ReactApplicationContext reactContext) {
         int nret = -1;
         Byte mPower = new Byte((byte) 0);
-        nret = m_reader.RDR_GetRFPower(mPower);
-        if (nret != ApiErrDefinition.NO_ERROR) {
-            return -1;
+        if(m_reader != null){
+            nret = m_reader.RDR_GetRFPower(mPower);
+            if (nret != ApiErrDefinition.NO_ERROR) {
+                return -1;
+            }
+            return mPower.byteValue() - 1;
         }
-        return mPower.byteValue() - 1;
-//        return nret;
+        return  -1;
     }
 
     public void setPower(int value) {
@@ -218,4 +273,6 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     public abstract void dispatchEvent(String name, String data);
 
     public abstract void dispatchEvent(String name, WritableArray data);
+
+
 }
