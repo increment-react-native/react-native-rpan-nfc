@@ -158,7 +158,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                         // ISO14443A TAG
 //                        tagList.add(ISO14444ATagData);
                         Toast.makeText(context, "Tags: " + ISO14444ATagData, Toast.LENGTH_SHORT).show();
-                        strData = String.valueOf(ISO14444ATagData.uid);
+                        strData = String.valueOf(ISO14444ATagData.);
 
                         tagReport = m_reader
                                 .RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
