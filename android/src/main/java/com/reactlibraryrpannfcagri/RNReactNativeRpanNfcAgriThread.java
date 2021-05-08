@@ -20,9 +20,14 @@ import com.rfid.api.ISO14443AInterface;
 import com.rfid.api.ISO14443ATag;
 import com.rfid.api.ISO15693Interface;
 import com.rfid.api.ISO15693Tag;
+import com.rfid.api.ISO18000p6CInterface;
 import com.rfid.def.ApiErrDefinition;
 import com.rfid.def.RfidDef;
 import com.rfid.iso15693.tagaccess.SpecReadMultipleBlocks;
+<<<<<<< HEAD
+=======
+import com.rfid.spec.tagaccess.*;
+>>>>>>> 3d222f7589859160674b9e03f8c18ba2780be6d4
 import com.rfid.transport.BufferPack;
 
 import java.io.Reader;
@@ -126,6 +131,23 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
     public void read(ReadableMap config) {
     }
 
+    public String UiReadBlock(ISO15693Interface mTag)
+    {
+        int blkAddr = 40;
+        int numOfBlksToRead = 40;
+        Integer numOfBlksRead = new Integer(0);
+        Long bytesBlkDatRead = new Long(0);
+        byte bufBlocks[] = new byte[4 * numOfBlksToRead];
+        int iret = mTag.ISO15693_ReadMultiBlocks(false, blkAddr,
+                numOfBlksToRead, numOfBlksRead, bufBlocks, bytesBlkDatRead);
+        if (iret != ApiErrDefinition.NO_ERROR)
+        {
+            return null;
+        }
+        String strData = GFunction.encodeHexStr(bufBlocks);
+        return strData;
+    }
+
     public WritableArray startScanning(ReactApplicationContext context){
         bGetScanRecordFlg = true;
         byte useAnt[] = null;
@@ -200,11 +222,14 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                     map.putString("tag_id", ISO15693Interface.GetTagNameById(ISO15693TagData.tag_id));
                     map.putString("uid", GFunction.encodeHexStr(ISO15693TagData.uid));
                     map.putString("aip_id", String.valueOf(ISO15693TagData.aip_id));
+
                     map.putString("length", String.valueOf(bufferPack.readable_length()));
                     map.putString("buffer length", String.valueOf(bufferPack.getBufferLen()));
                     mTag.ISO15693_Connect(m_reader, ISO15693TagData.tag_id, connectMode, ISO15693TagData.uid);
                     map.putString("block_string", readBlock(mTag));
                     tagList.pushMap((WritableMap) map);
+
+                    tagList.pushMap(map);
                     Toast.makeText(context, "Tags: " + ISO15693TagData, Toast.LENGTH_SHORT).show();
                     tagReport = m_reader.RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
                 }
