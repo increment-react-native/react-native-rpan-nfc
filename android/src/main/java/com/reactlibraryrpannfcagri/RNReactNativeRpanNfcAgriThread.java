@@ -1,5 +1,6 @@
 package com.reactlibraryrpannfcagri;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -21,6 +22,7 @@ import com.rfid.api.ISO15693Interface;
 import com.rfid.api.ISO15693Tag;
 import com.rfid.def.ApiErrDefinition;
 import com.rfid.def.RfidDef;
+import com.rfid.iso15693.tagaccess.SpecReadMultipleBlocks;
 import com.rfid.transport.BufferPack;
 
 import java.io.Reader;
@@ -183,6 +185,8 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
             while (tagReport != null)
             {
                 ISO15693Tag ISO15693TagData = new ISO15693Tag();
+                ISO15693Interface mTag = new ISO15693Interface ();
+                byte connectMode = 1;
                 iret = ISO15693Interface.ISO15693_ParseTagDataReport(
                         tagReport, ISO15693TagData);
                 if (iret == ApiErrDefinition.NO_ERROR)
@@ -198,6 +202,8 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                     map.putString("aip_id", String.valueOf(ISO15693TagData.aip_id));
                     map.putString("length", String.valueOf(bufferPack.readable_length()));
                     map.putString("buffer length", String.valueOf(bufferPack.getBufferLen()));
+                    mTag.ISO15693_Connect(m_reader, ISO15693TagData.tag_id, connectMode, ISO15693TagData.uid);
+                    map.putString("block_string", readBlock(mTag));
                     tagList.pushMap((WritableMap) map);
                     Toast.makeText(context, "Tags: " + ISO15693TagData, Toast.LENGTH_SHORT).show();
                     tagReport = m_reader.RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
@@ -226,6 +232,22 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
         return tagList;
     }
+
+    public String readBlock(ISO15693Interface mTag){
+        int blkAddr = 0;
+        int numOfBlksToRead = 40;
+        Integer numOfBlksRead = new Integer(0);
+        Long bytesBlkDatRead = new Long(0);
+        byte bufBlocks[] = new byte[4 * numOfBlksToRead];
+        int iret = mTag.ISO15693_ReadMultiBlocks(false, blkAddr,
+                numOfBlksToRead, numOfBlksRead, bufBlocks, bytesBlkDatRead);
+        if (iret != ApiErrDefinition.NO_ERROR)
+        {
+            return null;
+        }
+        return GFunction.encodeHexStr(bufBlocks);
+    }
+
 
     public int getPower(ReactApplicationContext reactContext) {
         int nret = -1;
