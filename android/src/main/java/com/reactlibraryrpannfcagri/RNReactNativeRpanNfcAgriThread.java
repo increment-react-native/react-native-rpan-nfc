@@ -24,10 +24,7 @@ import com.rfid.api.ISO18000p6CInterface;
 import com.rfid.def.ApiErrDefinition;
 import com.rfid.def.RfidDef;
 import com.rfid.iso15693.tagaccess.SpecReadMultipleBlocks;
-<<<<<<< HEAD
-=======
 import com.rfid.spec.tagaccess.*;
->>>>>>> 3d222f7589859160674b9e03f8c18ba2780be6d4
 import com.rfid.transport.BufferPack;
 
 import java.io.Reader;
