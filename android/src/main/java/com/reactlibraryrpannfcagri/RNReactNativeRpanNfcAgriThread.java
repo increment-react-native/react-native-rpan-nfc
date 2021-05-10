@@ -222,10 +222,8 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
                     map.putString("length", String.valueOf(bufferPack.readable_length()));
                     map.putString("buffer length", String.valueOf(bufferPack.getBufferLen()));
-                    mTag.ISO15693_Connect(m_reader, ISO15693TagData.tag_id, connectMode, ISO15693TagData.uid);
-                    map.putString("block_string", readBlock(mTag));
-                    tagList.pushMap((WritableMap) map);
-
+                    mTag.ISO15693_Connect(m_reader, 1, connectMode, ISO15693TagData.uid);
+                    map.putString("block_string", readBlock(mTag) + " - " + ISO15693TagData.tag_id);
                     tagList.pushMap(map);
                     Toast.makeText(context, "Tags: " + ISO15693TagData, Toast.LENGTH_SHORT).show();
                     tagReport = m_reader.RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
@@ -237,7 +235,6 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                 if (iret == ApiErrDefinition.NO_ERROR)
                 {
                     // ISO14443A TAG
-
                     WritableMap map = Arguments.createMap();
                     map.putString("data", tagReport.toString());
                     map.putString("ant_id", String.valueOf(ISO14444ATagData.ant_id));
@@ -257,15 +254,14 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
 
     public String readBlock(ISO15693Interface mTag){
         int blkAddr = 0;
-        int numOfBlksToRead = 40;
+        int numOfBlksToRead = 8;
         Integer numOfBlksRead = new Integer(0);
         Long bytesBlkDatRead = new Long(0);
         byte bufBlocks[] = new byte[4 * numOfBlksToRead];
-        int iret = mTag.ISO15693_ReadMultiBlocks(false, blkAddr,
-                numOfBlksToRead, numOfBlksRead, bufBlocks, bytesBlkDatRead);
+        int iret = mTag.ISO15693_ReadMultiBlocks(false, blkAddr, numOfBlksToRead, numOfBlksRead, bufBlocks, bytesBlkDatRead);
         if (iret != ApiErrDefinition.NO_ERROR)
         {
-            return null;
+            return "Error here " + iret;
         }
         return GFunction.encodeHexStr(bufBlocks);
     }
