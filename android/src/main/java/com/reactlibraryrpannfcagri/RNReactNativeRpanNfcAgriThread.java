@@ -1,11 +1,8 @@
 package com.reactlibraryrpannfcagri;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
+import android.nfc.FormatException;
+import android.nfc.NdefMessage;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.facebook.react.bridge.Arguments;
@@ -20,15 +17,11 @@ import com.rfid.api.ISO14443AInterface;
 import com.rfid.api.ISO14443ATag;
 import com.rfid.api.ISO15693Interface;
 import com.rfid.api.ISO15693Tag;
-import com.rfid.api.ISO18000p6CInterface;
 import com.rfid.def.ApiErrDefinition;
 import com.rfid.def.RfidDef;
-import com.rfid.iso15693.tagaccess.SpecReadMultipleBlocks;
-import com.rfid.spec.tagaccess.*;
 import com.rfid.transport.BufferPack;
 
 import java.io.Reader;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -145,7 +138,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
         return strData;
     }
 
-    public WritableArray startScanning(ReactApplicationContext context){
+    public WritableArray startScanning(ReactApplicationContext context) throws FormatException {
         bGetScanRecordFlg = true;
         byte useAnt[] = null;
         Object hInvenParamSpecList = null;
@@ -223,7 +216,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                     map.putString("length", String.valueOf(bufferPack.readable_length()));
                     map.putString("buffer length", String.valueOf(bufferPack.getBufferLen()));
                     mTag.ISO15693_Connect(m_reader, 1, connectMode, ISO15693TagData.uid);
-                    map.putString("block_string", readBlock(mTag) + " - " + ISO15693TagData.tag_id);
+                    map.putString("block_string", readBlock(mTag));
                     tagList.pushMap(map);
                     Toast.makeText(context, "Tags: " + ISO15693TagData, Toast.LENGTH_SHORT).show();
                     tagReport = m_reader.RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
@@ -252,18 +245,22 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
         return tagList;
     }
 
-    public String readBlock(ISO15693Interface mTag){
+    public String readBlock(ISO15693Interface mTag) throws FormatException {
         int blkAddr = 0;
-        int numOfBlksToRead = 8;
-        Integer numOfBlksRead = new Integer(0);
-        Long bytesBlkDatRead = new Long(0);
+        int numOfBlksToRead = 79;
+        long[] numOfBlksRead = new long[1];
+        long[] bytesBlkDatRead = new long[1];
+
+        numOfBlksRead[0] = 0;
+        bytesBlkDatRead[0] = 0;
         byte bufBlocks[] = new byte[4 * numOfBlksToRead];
         int iret = mTag.ISO15693_ReadMultiBlocks(false, blkAddr, numOfBlksToRead, numOfBlksRead, bufBlocks, bytesBlkDatRead);
         if (iret != ApiErrDefinition.NO_ERROR)
         {
-            return "Error here " + iret;
+            return null;
         }
-        return GFunction.encodeHexStr(bufBlocks);
+//        String data  = GFunction.encodeHexStr(bufBlocks);
+        return new NdefMessage(bufBlocks);
     }
 
 
