@@ -259,8 +259,8 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
         {
             return null;
         }
-//        String data  = GFunction.encodeHexStr(bufBlocks);
-        return new NdefMessage(bufBlocks);
+        String data  = GFunction.encodeHexStr(bufBlocks);
+        return data;
     }
 
 
