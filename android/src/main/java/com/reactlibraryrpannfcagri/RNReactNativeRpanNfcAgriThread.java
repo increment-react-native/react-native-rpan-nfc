@@ -138,7 +138,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
         return strData;
     }
 
-    public WritableArray startScanning(ReactApplicationContext context) throws FormatException {
+    public WritableArray startScanning(ReactApplicationContext context){
         bGetScanRecordFlg = true;
         byte useAnt[] = null;
         Object hInvenParamSpecList = null;
@@ -245,11 +245,12 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
         return tagList;
     }
 
-    public String readBlock(ISO15693Interface mTag) throws FormatException {
+    public String readBlock(ISO15693Interface mTag) {
         int blkAddr = 0;
         int numOfBlksToRead = 79;
         long[] numOfBlksRead = new long[1];
         long[] bytesBlkDatRead = new long[1];
+        String data  = "";
 
         numOfBlksRead[0] = 0;
         bytesBlkDatRead[0] = 0;
@@ -259,7 +260,15 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
         {
             return null;
         }
-        String data  = GFunction.encodeHexStr(bufBlocks);
+        boolean flag = true;
+        for (int i = 0; i < bufBlocks.length; i++){
+            if(Character.toString((char) (bufBlocks[i] & 0xff)).equalsIgnoreCase("þ")){
+                flag = false;
+            }
+            if(bufBlocks[i] != 0 && i > 12 && flag == true){
+                data += Character.toString((char) (bufBlocks[i] & 0xff));
+            }
+        }
         return data;
     }
 
