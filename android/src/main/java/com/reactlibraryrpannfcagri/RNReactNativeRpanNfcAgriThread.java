@@ -216,7 +216,7 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                     map.putString("length", String.valueOf(bufferPack.readable_length()));
                     map.putString("buffer length", String.valueOf(bufferPack.getBufferLen()));
                     mTag.ISO15693_Connect(m_reader, 1, connectMode, ISO15693TagData.uid);
-                    map.putString("block_string", readBlock(mTag));
+                    map.putString("tag", readBlock(mTag));
                     tagList.pushMap(map);
                     Toast.makeText(context, "Tags: " + ISO15693TagData, Toast.LENGTH_SHORT).show();
                     tagReport = m_reader.RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
