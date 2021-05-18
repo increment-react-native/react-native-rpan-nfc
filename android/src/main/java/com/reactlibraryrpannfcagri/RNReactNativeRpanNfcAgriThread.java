@@ -204,21 +204,11 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                 if (iret == ApiErrDefinition.NO_ERROR)
                 {
                     // ISO15693 TAG
-                    BufferPack bufferPack = ISO15693TagData.m_rawData;
-                    String data = GFunction.encodeHexStr(bufferPack.GetBuffer());
                     WritableMap map = Arguments.createMap();
-                    map.putString("data", data);
-                    map.putString("ant_id", String.valueOf(ISO15693TagData.ant_id));
-                    map.putString("tag_id", ISO15693Interface.GetTagNameById(ISO15693TagData.tag_id));
                     map.putString("uid", GFunction.encodeHexStr(ISO15693TagData.uid));
-                    map.putString("aip_id", String.valueOf(ISO15693TagData.aip_id));
-
-                    map.putString("length", String.valueOf(bufferPack.readable_length()));
-                    map.putString("buffer length", String.valueOf(bufferPack.getBufferLen()));
                     mTag.ISO15693_Connect(m_reader, 1, connectMode, ISO15693TagData.uid);
                     map.putString("tag", readBlock(mTag));
                     tagList.pushMap(map);
-                    Toast.makeText(context, "Tags: " + ISO15693TagData, Toast.LENGTH_SHORT).show();
                     tagReport = m_reader.RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
                 }
 
@@ -227,16 +217,10 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
                         tagReport, ISO14444ATagData);
                 if (iret == ApiErrDefinition.NO_ERROR)
                 {
-                    // ISO14443A TAG
                     WritableMap map = Arguments.createMap();
-                    map.putString("data", tagReport.toString());
-                    map.putString("ant_id", String.valueOf(ISO14444ATagData.ant_id));
-                    map.putString("tag_id", ISO14443AInterface.GetTagNameById(ISO14444ATagData.tag_id));
                     map.putString("uid", GFunction.encodeHexStr(ISO14444ATagData.uid));
-                    map.putString("aip_id", String.valueOf(ISO14444ATagData.aip_id));
+                    map.putString("tag", null);
                     tagList.pushMap((WritableMap) map);
-                    Toast.makeText(context, "Tags: " + ISO14444ATagData, Toast.LENGTH_SHORT).show();
-
                     tagReport = m_reader.RDR_GetTagDataReport(RfidDef.RFID_SEEK_NEXT);
                 }
             }
@@ -299,12 +283,14 @@ public abstract class RNReactNativeRpanNfcAgriThread extends Thread{
         {
             for (BluetoothCfg bluetoolCfg : m_blueList)
             {
-                WritableMap map = Arguments.createMap();
-                map.putString("model", null);
-                map.putString("serial", null);
-                map.putString("battery", null);
-                map.putString("host", bluetoolCfg.GetName());
-                array.pushMap(map);
+                if(bluetoolCfg.GetName().contains("PAN")){
+                    WritableMap map = Arguments.createMap();
+                    map.putString("model", null);
+                    map.putString("serial", null);
+                    map.putString("battery", null);
+                    map.putString("host", bluetoolCfg.GetName());
+                    array.pushMap(map);
+                }
             }
         }
 
